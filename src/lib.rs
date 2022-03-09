@@ -88,13 +88,50 @@ pub fn get_args() -> MyResult<Config> {
 }
 
 pub fn run(config: Config) -> MyResult<()> {
+    let mut total = FileInfo {
+        num_lines: 0,
+        num_words: 0,
+        num_bytes: 0,
+        num_chars: 0,
+    };
     for filename in &config.files {
         match open(filename) {
             Err(err) => eprintln!("{}: {}", filename, err),
-            Ok(_) => println!("Opened {}", filename),
+            Ok(file) => {
+                let info = count(file)?;
+                total.num_lines += info.num_lines;
+                total.num_words += info.num_words;
+                total.num_bytes += info.num_bytes;
+                total.num_chars += info.num_chars;
+                println!("{}", format_counts(&config, &info, filename));
+            },
         }
     }
+    if config.files.len() > 1 {
+        println!("{}", format_counts(&config, &total, "total"));
+    }
     Ok(())
+}
+
+fn format_counts(config: &Config, info: &FileInfo, name: &str) -> String {
+    let mut counts_str = String::new();
+    if config.lines {
+        counts_str = format!("{}{:>8}", counts_str, info.num_lines);
+    }
+    if config.words {
+        counts_str = format!("{}{:>8}", counts_str, info.num_words);
+    }
+    if config.bytes {
+        counts_str = format!("{}{:>8}", counts_str, info.num_bytes);
+    }
+    if config.chars {
+        counts_str = format!("{}{:>8}", counts_str, info.num_chars);
+    }
+    if name == "-" {
+        format!("{}", counts_str)
+    } else {
+        format!("{} {}", counts_str, name)
+    }
 }
 
 fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
