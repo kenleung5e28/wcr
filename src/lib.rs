@@ -144,19 +144,27 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
 pub fn count(mut file: impl BufRead) -> MyResult<FileInfo> {
     let mut num_lines = 0;
     let mut num_words = 0;
+    let mut num_bytes = 0;
+    let mut num_chars = 0;
 
-    let mut text = String::new();
-    file.read_to_string(&mut text)?;
-    for line in text.lines() {
+    let mut buffer = String::new();
+    loop {
+        let line_bytes = file.read_line(&mut buffer)?;
+        if line_bytes == 0 {
+            break;
+        }
         num_lines += 1;
-        num_words += line.split_whitespace().count();
+        num_words += buffer.split_whitespace().count();
+        num_bytes += buffer.bytes().count();
+        num_chars += buffer.chars().count();
+        buffer.clear();
     }
 
     Ok(FileInfo {
         num_lines,
         num_words,
-        num_bytes: text.bytes().count(),
-        num_chars: text.chars().count(),
+        num_bytes,
+        num_chars,
     })
 }
 
