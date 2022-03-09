@@ -49,18 +49,18 @@ pub fn get_args() -> MyResult<Config> {
             .takes_value(false)
         )
         .arg(
-            Arg::with_name("bytes")
-            .short("c")
-            .long("bytes")
-            .help("Show byte count")
-            .takes_value(false)
-            .conflicts_with("chars")
-        )
-        .arg(
             Arg::with_name("chars")
             .short("m")
             .long("chars")
             .help("Show character count")
+            .takes_value(false)
+            .conflicts_with("bytes")
+        )
+        .arg(
+            Arg::with_name("bytes")
+            .short("c")
+            .long("bytes")
+            .help("Show byte count")
             .takes_value(false)
         )
         .get_matches();
