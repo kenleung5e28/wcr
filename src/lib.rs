@@ -155,7 +155,7 @@ pub fn count(mut file: impl BufRead) -> MyResult<FileInfo> {
         }
         num_lines += 1;
         num_words += buffer.split_whitespace().count();
-        num_bytes += buffer.bytes().count();
+        num_bytes += line_bytes;
         num_chars += buffer.chars().count();
         buffer.clear();
     }
